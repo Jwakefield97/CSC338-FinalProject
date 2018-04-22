@@ -1,5 +1,5 @@
 """
-   Since switching to requests over urllib (so the program can handle https) this example should work. It takes a little while to complete. 
+   Since switching to requests over urllib (so the program can handle https) this example should work. It may take a little while to complete. 
 """
 from bs4 import BeautifulSoup 
 import requests
