@@ -1,15 +1,15 @@
 """
-    DISCLAIMER: I don't remember if this program is completly working (more specifically extraPages()). 
+   Since switching to requests over urllib (so the program can handle https) this example should work. It takes a little while to complete. 
 """
 from bs4 import BeautifulSoup 
-import urllib.request
+import requests
 
 links = [] 
 allLinks = [] 
 
 def initialPage(url):
-    with urllib.request.urlopen(url) as html: #reauest page and read in file 
-        htmlPage = html.read()
+    with requests.get(url) as html: #request page and read in file 
+        htmlPage = html.content
     
     soup = BeautifulSoup(htmlPage, "html.parser") #parse html with beautiful soup
     
@@ -21,8 +21,8 @@ def initialPage(url):
     
 def extraPages():
     for link in links[:3]: #visit the first three links found at google.com and collect links from the those pages (same process as above) 
-        with urllib.request.urlopen(link) as html:
-            htmlPage = html.read()
+        with requests.get(link) as html:
+            htmlPage = html.content
             soup = BeautifulSoup(htmlPage, "html.parser")
     
             #get all links concerning google 
