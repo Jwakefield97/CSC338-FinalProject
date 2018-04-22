@@ -25,7 +25,7 @@
 
 from bs4 import BeautifulSoup
 from threading import Thread
-import urllib.request
+import requests
 import multiprocessing as mp
 import sys
 import time
