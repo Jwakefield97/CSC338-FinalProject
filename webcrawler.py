@@ -35,7 +35,7 @@ DOMAIN = "" # Ex: https://www.google.com
 """
     Description: get number of cpus and setup/manage processes.  
 """
-def processManager():
+def processManager(links):
     pass
 
 
@@ -48,7 +48,7 @@ def threadManager():
 
 
 """
-    Description: visit inital page, collect links, and spread links evenly across processes. 
+    Description: visit inital page, collects/returns links.
 """
 def initialPage(url):
     pass
@@ -76,6 +76,7 @@ def output():
 if __name__ == "__main__":
     
     DOMAIN = sys.argv[1]
-    initialPage(DOMAIN)
-    processManager() 
+    initialLinks = initialPage(DOMAIN)
+    processManager(initialLinks) 
+    output() 
 
