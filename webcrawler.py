@@ -10,7 +10,7 @@
                  load (links) from the entry page amongst the processes which spawn threads to handle any further links that are discovered on
                  subsequent pages.
     Tech: Python 3, multiprocessing, threading, time (timing of threads/processes and overall program), sys (command line args),
-          beautiful soup (parse html response), and urllib (make network requests)
+          beautiful soup (parse html response), and requests (make network requests)
           
     Execution Flow: command line arg (entry domain) is passed to initalPage() which collects the all the links that are on the same domain.
                     The processManager() function is then called which sets up the processes based on the system cpu count and spreads
