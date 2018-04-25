@@ -12,7 +12,7 @@
     Tech: Python 3, multiprocessing, threading, time (timing of threads/processes and overall program), sys (command line args),
           beautiful soup (parse html response), and requests (make network requests)
           
-    Execution Flow: command line arg (entry domain) is passed to initalPage() which collects the all the links that are on the same domain.
+    Execution Flow: command line arg (entry domain) is passed to parsePage() which collects the all the links that are on the same domain.
                     The processManager() function is then called which sets up the processes based on the system cpu count and spreads
                     the links collected from  the initial page across the processes. Once the processes are initalized, they are all started.
                     Once the process is started it initializes a pool of threads to be used in the recursive link collection process.
