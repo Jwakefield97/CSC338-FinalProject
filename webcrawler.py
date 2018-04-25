@@ -14,7 +14,7 @@
           
     Execution Flow: command line arg (entry domain) is passed to initalPage() which collects the all the links that are on the same domain.
                     The processManager() function is then called which sets up the processes based on the system cpu count and spreads
-                    the links collected from initalPage() across the processes. Once the processes are initalized, they are all started.
+                    the links collected from  the initial page across the processes. Once the processes are initalized, they are all started.
                     Once the process is started it initializes a pool of threads to be used in the recursive link collection process.
                     Once a link is found on the same origin, a thread (one that is not busy working on another page) is used to process
                     the page and collect links (thread calls parsePage() which visits the page and processes links).
@@ -31,6 +31,7 @@ import sys
 import time
 
 DOMAIN = "" # Ex: https://www.google.com
+THREAD_POOL_SIZE = 1000
 
 """
     Description: get number of cpus and setup/manage processes.  
@@ -69,6 +70,7 @@ def output():
 if __name__ == "__main__":
     
     DOMAIN = sys.argv[1]
+    THREAD_POOL_SIZE = sys.argv[2] //get thread pool size from command line
     initialLinks = parsePage(DOMAIN)
     processManager(initialLinks) 
     output() 
