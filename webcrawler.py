@@ -48,13 +48,6 @@ def threadManager():
 
 
 """
-    Description: visit inital page, collects/returns links as a list.
-"""
-def initialPage(url):
-    pass
-
-
-"""
     Description: visit page distributed by inital page using a thread of the processes. This function gets
                  gets called by the threads. 
 """
@@ -76,7 +69,7 @@ def output():
 if __name__ == "__main__":
     
     DOMAIN = sys.argv[1]
-    initialLinks = initialPage(DOMAIN)
+    initialLinks = parsePage(DOMAIN)
     processManager(initialLinks) 
     output() 
 
