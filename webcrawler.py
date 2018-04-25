@@ -48,7 +48,7 @@ def threadManager():
 
 
 """
-    Description: visit inital page, collects/returns links.
+    Description: visit inital page, collects/returns links as a list.
 """
 def initialPage(url):
     pass
