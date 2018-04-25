@@ -70,7 +70,7 @@ def output():
 if __name__ == "__main__":
     
     DOMAIN = sys.argv[1]
-    THREAD_POOL_SIZE = sys.argv[2] //get thread pool size from command line
+    THREAD_POOL_SIZE = sys.argv[2] #get thread pool size from command line
     initialLinks = parsePage(DOMAIN)
     processManager(initialLinks) 
     output() 
