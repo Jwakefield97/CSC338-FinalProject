@@ -35,6 +35,7 @@ THREAD_POOL_SIZE = 1000 #max number of threads the user wants to limit each proc
 THREADS_IN_USE = [] #threads that are currently working
 URLS_TO_VISIT = [] #urls to be visited
 URLS_VISITED = [] #urls that have been visited
+LOCK = threading.lock()
 
 """
     Description: get number of cpus and setup/manage processes.  
@@ -67,7 +68,29 @@ def parsePage(url):
     #if the links contains the domain and aren't in URLS_VISITED (acquire lock for list), acquire the lock
     #for URLS_TO_VISIT and push the valid link to the list. 
     #don't forget to release all locks after using them and try catch any network request or parsing. 
-    pass
+    LOCK.acquire() #acquire lock 
+
+    notVisited = url not in URLS_VISITED
+    toVisitLen = len(URLS_TO_VISIT)
+    URLS_VISITED.append(url) #add to visited urls 
+    if(notVisited): #if the url hasn't been visited 
+        if(toVisitLen != 0): #if this isn't the first call to parsePage() 
+            URLS_TO_VISIT.remove(url) #remove the url that is about to be visited
+            
+        LOCK.release()  #release lock
+        try:
+            with requests.get(url) as html: #get page and parse 
+                htmlPage = html.content 
+                soup = BeautifulSoup(htmlPage, "html.parser")
+                
+                for link in soup.findAll("a"): #loop through links 
+                    try:
+                        if(DOMAIN in link['href']): #if it is on the same domain append url 
+                            URLS_TO_VISIT.append(link["href"])
+                    except:
+                        print("no href error occured") 
+        except:
+            print("network error occured")
 
 
 """
