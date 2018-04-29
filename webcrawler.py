@@ -31,7 +31,7 @@ import sys
 import time
 
 DOMAIN = "" # Ex: https://www.google.com
-THREAD_POOL_SIZE = 1000
+THREAD_POOL_SIZE = 1000 #max number of threads the user wants to limit each process to.
 THREADS_IN_USE = [] #threads that are currently working
 URLS_TO_VISIT = [] #urls to be visited
 URLS_VISITED = [] #urls that have been visited
@@ -40,6 +40,9 @@ URLS_VISITED = [] #urls that have been visited
     Description: get number of cpus and setup/manage processes.  
 """
 def processManager():
+    #get number of cpus
+    #spawn the process with the threadManager as the function to execute 
+    #start the processes 
     pass
 
 
@@ -48,6 +51,10 @@ def processManager():
                  threads (thread pool).
 """ 
 def threadManager(): 
+    #if the max thread count hasn't been reached, acquire a lock to access URLS_TO_VISIT,
+    #while if URLS_TO_VISIT isn't empty, grab URLS_TO_VISIT[0] remove it from the list, acquire the lock 
+    #to access URLS_VISITED and push URLS_TO_VISIT[0].
+    #spawn a new thread to visit the url. Don't forget to release all locks after access the info needed.
     pass
 
 
@@ -56,6 +63,10 @@ def threadManager():
                  gets called by the threads. 
 """
 def parsePage(url):
+    #visit url and parse the return html.
+    #if the links contains the domain and aren't in URLS_VISITED (acquire lock for list), acquire the lock
+    #for URLS_TO_VISIT and push the valid link to the list. 
+    #don't forget to release all locks after using them and try catch any network request or parsing. 
     pass
 
 
@@ -63,6 +74,8 @@ def parsePage(url):
     Description: block for processes and threads to end then display stats/output links to a file. 
 """
 def output():
+    #block for all processes to be finished. 
+    #then output stats about the runtime and links. 
     pass
 
 
