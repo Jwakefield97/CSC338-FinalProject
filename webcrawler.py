@@ -32,11 +32,14 @@ import time
 
 DOMAIN = "" # Ex: https://www.google.com
 THREAD_POOL_SIZE = 1000
+THREADS_IN_USE = [] #threads that are currently working
+URLS_TO_VISIT = [] #urls to be visited
+URLS_VISITED = [] #urls that have been visited
 
 """
     Description: get number of cpus and setup/manage processes.  
 """
-def processManager(links):
+def processManager():
     pass
 
 
@@ -70,8 +73,8 @@ def output():
 if __name__ == "__main__":
     
     DOMAIN = sys.argv[1]
-    THREAD_POOL_SIZE = sys.argv[2] #get thread pool size from command line
-    initialLinks = parsePage(DOMAIN)
-    processManager(initialLinks) 
+    THREAD_POOL_SIZE = int(sys.argv[2]) #get thread pool size from command line
+    parsePage(DOMAIN)
+    processManager() 
     output() 
 
