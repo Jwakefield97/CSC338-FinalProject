@@ -70,13 +70,11 @@ def parsePage(url):
     #don't forget to release all locks after using them and try catch any network request or parsing. 
     LOCK.acquire() #acquire lock 
 
-    notVisited = url not in URLS_VISITED
-    toVisitLen = len(URLS_TO_VISIT)
-    URLS_VISITED.append(url) #add to visited urls 
-    if(notVisited): #if the url hasn't been visited 
-        if(toVisitLen != 0): #if this isn't the first call to parsePage() 
+    if(url not in URLS_VISITED): #if the url hasn't been visited 
+        if(len(URLS_TO_VISIT) != 0): #if this isn't the first call to parsePage() 
             URLS_TO_VISIT.remove(url) #remove the url that is about to be visited
-            
+        URLS_VISITED.append(url) #add to visited urls 
+
         LOCK.release()  #release lock
         try:
             with requests.get(url) as html: #get page and parse 
