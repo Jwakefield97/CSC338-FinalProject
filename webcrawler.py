@@ -33,7 +33,7 @@ import time
 DOMAIN = "" # Ex: https://www.google.com
 MAX_PAGE_COUNT = 1000 #max number of threads the user wants to limit each process to.
 THREADS_IN_USE = [] #threads that are currently working
-URLS_TO_VISIT = [] #urls to be visited
+URLS_TO_VISIT = mp.Queue() #urls to be visited
 URLS_VISITED = [] #urls that have been visited
 
 """
@@ -43,25 +43,28 @@ def processManager():
     #get number of cpus
     #spawn the process with the threadManager as the function to execute
     #start the processes
+    cpu_count = mp.cpu_count()
 
     while len(URLS_VISITED) < MAX_PAGE_COUNT and len(URLS_TO_VISIT) > 0:
-        cpu_count = mp.cpu_count()
         processes = []
         number_of_pages = len(URLS_TO_VISIT) // cpu_count
         beginIndex = 0
         endIndex = number_of_pages
-        #balanced_number_of_pages = len(URLS_TO_VISIT)//cpu_count + len(URLS_TO_VISIT)%cpu_count
+        balanced_number_of_pages = len(URLS_TO_VISIT)//cpu_count + len(URLS_TO_VISIT)%cpu_count
         for i in range(cpu_count):
+            local_links = []
             if i < cpu_count:
-                p = mp.Process(target = parsePage, args = [URLS_TO_VISIT[0:number_of_pages]])
-                del URLS_TO_VISIT[0:number_of_pages]
+                for i in range(number_of_pages):
+                    local_links.append(URLS_TO_VISIT.get())
+                p = mp.Process(target = parsePage, args = [local_links])
                 p.start()
             else:
-                p = mp.Process(target = parsePage, args = [URLS_TO_VISIT[0:]])
-                del URLS_TO_VISIT[0:]
+                for i in range(balanced_number_of_pages):
+                    local_links.append(URLS_TO_VISIT.get())
+                p = mp.Process(target = parsePage, args = [local_links])
                 p.start()
         for p in processes:
-            p.join()
+            p.wait()
 
     output()
 """
