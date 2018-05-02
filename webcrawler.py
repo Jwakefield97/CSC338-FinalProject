@@ -29,6 +29,7 @@ import requests
 import multiprocessing as mp
 import sys
 import time
+import os 
 
 DOMAIN = "" # Ex: https://www.google.com
 MAX_PAGE_COUNT = 1000 #max number of threads the user wants to limit each process to.
@@ -43,7 +44,7 @@ def processManager():
     #get number of cpus
     #spawn the process with the threadManager as the function to execute
     #start the processes
-
+    
     while len(URLS_VISITED) < MAX_PAGE_COUNT and len(URLS_TO_VISIT) > 0:
         cpu_count = mp.cpu_count()
         processes = []
@@ -60,6 +61,7 @@ def processManager():
                 p = mp.Process(target = parsePage, args = [URLS_TO_VISIT[0:]])
                 del URLS_TO_VISIT[0:]
                 p.start()
+        exit = [p.wait() for p in processes]
         for p in processes:
             p.join()
 
@@ -85,6 +87,8 @@ def parsePage(urls):
     #if the links contains the domain and aren't in URLS_VISITED (acquire lock for list), acquire the lock
     #for URLS_TO_VISIT and push the valid link to the list. 
     #don't forget to release all locks after using them and try catch any network request or parsing. k 
+    print(os.getpid())
+    print(URLS_TO_VISIT)
     for url in urls: 
         try:
             with requests.get(url) as html: #get page and parse 
@@ -94,7 +98,7 @@ def parsePage(urls):
                 for link in soup.findAll("a"): #loop through links 
                     try:
                         if(DOMAIN in link['href']): #if it is on the same domain append url 
-                            URLS_TO_VISIT.append(link["href"])
+                            URLS_TO_VISIT.put(link["href"])
                     except:
                         print("no href error occured") 
         except:
@@ -104,6 +108,8 @@ def parsePage(urls):
     Description: block for processes and threads to end then display stats/output links to a file.
 """
 def output():
+    print(len(URLS_VISITED))
+    print(len(URLS_TO_VISIT))
     #block for all processes to be finished.
     #then output stats about the runtime and links.
     #output all links to text file
@@ -121,8 +127,7 @@ def output():
                  the inital links are collected processManager() is called and the links are distributed amongst them.
 """
 if __name__ == "__main__":
-
     DOMAIN = sys.argv[1]
     MAX_PAGE_COUNT = int(sys.argv[2]) #get thread pool size from command line
-    parsePage(DOMAIN)
+    parsePage([DOMAIN])
     processManager()
