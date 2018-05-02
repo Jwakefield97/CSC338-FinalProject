@@ -64,7 +64,6 @@ def processManager():
                 p.start()
         for p in processes:
             p.join()
-
 """
     Description: function that spawns the threads for the process and manages the threads. Uses a set number
                  threads (thread pool).
@@ -81,20 +80,12 @@ def threadManager():
     Description: visit page distributed by inital page using a thread of the processes. This function gets
                  gets called by the threads.
 """
-def parsePage(url):
+def parsePage(urls):
     #visit url and parse the return html.
     #if the links contains the domain and aren't in URLS_VISITED (acquire lock for list), acquire the lock
-<<<<<<< HEAD
     #for URLS_TO_VISIT and push the valid link to the list. 
-    #don't forget to release all locks after using them and try catch any network request or parsing. 
-    LOCK.acquire() #acquire lock 
-
-    if(url not in URLS_VISITED): #if the url hasn't been visited 
-        if(len(URLS_TO_VISIT) != 0): #if this isn't the first call to parsePage() 
-            URLS_TO_VISIT.remove(url) #remove the url that is about to be visited
-        URLS_VISITED.append(url) #add to visited urls 
-
-        LOCK.release()  #release lock
+    #don't forget to release all locks after using them and try catch any network request or parsing. k 
+    for url in urls: 
         try:
             with requests.get(url) as html: #get page and parse 
                 htmlPage = html.content 
@@ -108,13 +99,6 @@ def parsePage(url):
                         print("no href error occured") 
         except:
             print("network error occured")
-=======
-    #for URLS_TO_VISIT and push the valid link to the list.
-    #don't forget to release all locks after using them and try catch any network request or parsing.
-    print("Firing parsePage")
-    pass
->>>>>>> origin/Eric
-
 
 """
     Description: block for processes and threads to end then display stats/output links to a file.
@@ -122,7 +106,14 @@ def parsePage(url):
 def output():
     #block for all processes to be finished.
     #then output stats about the runtime and links.
-    pass
+    #output all links to text file
+    file = open("output.txt","w")
+    for link in URLS_TO_VISIT: 
+        file.write(link + " \n") 
+    for link in URLS_VISITED: 
+        file.write(link + " \n") 
+    file.close()   
+
 
 
 """
@@ -135,4 +126,3 @@ if __name__ == "__main__":
     MAX_PAGE_COUNT = int(sys.argv[2]) #get thread pool size from command line
     parsePage(DOMAIN)
     processManager()
-    output()
