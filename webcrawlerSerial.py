@@ -8,6 +8,8 @@ DOMAIN = ""   #domain to be crawled
 PAGE_LIMIT = 0 #number of pages the user wants to visit
 URLS_TO_VISIT = [] #urls that have been discovered to visit
 URLS_VISITED = [] #urls that have been visited
+MAINDOMAIN = DOMAIN.replace("https://www.","").replace("http://www.","")
+
 
 def crawl():
     while(len(URLS_VISITED) < PAGE_LIMIT and len(URLS_TO_VISIT) > 0): #if the page limit not reached and there are urls to visit
@@ -25,7 +27,7 @@ def parsePage(url):
                 
                 for link in soup.findAll("a"): #loop through links 
                     try:
-                        if("missouristate" in link['href'] or link['href'][0] == '/'): #if it is on the same domain append url 
+                        if(MAINDOMAIN in link['href'] or link['href'][0] == '/'): #if it is on the same domain append url 
                             if(link['href'][0] == '/'):
                                 URLS_TO_VISIT.append(DOMAIN + link["href"])
                             else:
