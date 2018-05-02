@@ -45,12 +45,10 @@ def processManager():
     #start the processes
     cpu_count = mp.cpu_count()
 
-    while len(URLS_VISITED) < MAX_PAGE_COUNT and len(URLS_TO_VISIT) > 0:
+    while len(URLS_VISITED) < MAX_PAGE_COUNT and URLS_TO_VISIT.qsize() > 0:
         processes = []
-        number_of_pages = len(URLS_TO_VISIT) // cpu_count
-        beginIndex = 0
-        endIndex = number_of_pages
-        balanced_number_of_pages = len(URLS_TO_VISIT)//cpu_count + len(URLS_TO_VISIT)%cpu_count
+        number_of_pages = URLS_TO_VISIT.qsize() // cpu_count
+        balanced_number_of_pages = URLS_TO_VISIT.qsize()//cpu_count + URLS_TO_VISIT.qsize()%cpu_count
         for i in range(cpu_count):
             local_links = []
             if i < cpu_count:
