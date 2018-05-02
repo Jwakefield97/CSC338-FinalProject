@@ -33,8 +33,8 @@ import time
 DOMAIN = "" # Ex: https://www.google.com
 MAX_PAGE_COUNT = 1000 #max number of threads the user wants to limit each process to.
 THREADS_IN_USE = [] #threads that are currently working
-URLS_TO_VISIT = mp.Queue() #urls to be visited
-URLS_VISITED = mp.Queue() #urls that have been visited
+URLS_TO_VISIT = [] #urls to be visited
+URLS_VISITED = [] #urls that have been visited
 
 """
     Description: get number of cpus and setup/manage processes.
@@ -44,26 +44,26 @@ def processManager():
     #spawn the process with the threadManager as the function to execute
     #start the processes
 
-    while URLS_VISITED.qsize() < MAX_PAGE_COUNT and URLS_TO_VISIT.qsize() > 0:
+    while len(URLS_VISITED) < MAX_PAGE_COUNT and len(URLS_TO_VISIT) > 0:
         cpu_count = mp.cpu_count()
         processes = []
-        number_of_pages = URLS_TO_VISIT.qsize()//cpu_count
-        balanced_number_of_pages = URLS_TO_VISIT.qsize()//cpu_count + URLS_TO_VISIT.qsize()%cpu_count
+        number_of_pages = len(URLS_TO_VISIT) // cpu_count
+        beginIndex = 0
+        endIndex = number_of_pages
+        #balanced_number_of_pages = len(URLS_TO_VISIT)//cpu_count + len(URLS_TO_VISIT)%cpu_count
         for i in range(cpu_count):
-            if i < cpu_count - 1:
-                list_of_urls = []
-                for page in range(number_of_pages):
-                    list_of_urls.append(URLS_TO_VISIT.get())
-                p = mp.Process(target = parsePage, args = [list_of_urls])
+            if i < cpu_count:
+                p = mp.Process(target = parsePage, args = [URLS_TO_VISIT[0:number_of_pages]])
+                del URLS_TO_VISIT[0:number_of_pages]
                 p.start()
             else:
-                list_of_urls = []
-                for page in range(balanced_number_of_pages):
-                    list_of_urls.append(URLS_TO_VISIT.get())
-                p = mp.Process(target = parsePage, args = [list_of_urls])
+                p = mp.Process(target = parsePage, args = [URLS_TO_VISIT[0:]])
+                del URLS_TO_VISIT[0:]
                 p.start()
         for p in processes:
             p.join()
+
+    output()
 """
     Description: function that spawns the threads for the process and manages the threads. Uses a set number
                  threads (thread pool).
