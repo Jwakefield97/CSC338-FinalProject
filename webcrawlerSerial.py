@@ -15,7 +15,7 @@ def crawl():
     
 def parsePage(url):
     if(url not in URLS_VISITED): #if the url hasn't been visited 
-        if(len(URLS_TO_VISIT) != 0): #if this isn't the first call to parsePage() 
+        if(len(URLS_TO_VISIT) > 0): #if this isn't the first call to parsePage() 
             URLS_TO_VISIT.remove(url) #remove the url that is about to be visited
         URLS_VISITED.append(url) #add to visited urls 
         try:
@@ -25,12 +25,18 @@ def parsePage(url):
                 
                 for link in soup.findAll("a"): #loop through links 
                     try:
-                        if(DOMAIN in link['href']): #if it is on the same domain append url 
-                            URLS_TO_VISIT.append(link["href"])
+                        if("missouristate" in link['href'] or link['href'][0] == '/'): #if it is on the same domain append url 
+                            if(link['href'][0] == '/'):
+                                URLS_TO_VISIT.append(DOMAIN + link["href"])
+                            else:
+                                URLS_TO_VISIT.append(link["href"])
                     except:
                         print("no href error occured") 
         except:
             print("network error occured")
+    else:
+        if(len(URLS_TO_VISIT) > 0): #if this isn't the first call to parsePage() 
+            URLS_TO_VISIT.remove(url)
 
 def output():
     #output all links to text file
