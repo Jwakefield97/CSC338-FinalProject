@@ -31,66 +31,58 @@ import sys
 import time
 
 DOMAIN = "" # Ex: https://www.google.com
-MAX_PAGE_COUNT = 1000 #max number of threads the user wants to limit each process to.
-THREADS_IN_USE = [] #threads that are currently working
-URLS_TO_VISIT = mp.Queue() #urls to be visited
-URLS_VISITED = [] #urls that have been visited
-LOCK = mp.Lock()
 MAINDOMAIN = DOMAIN.replace("https://www.","").replace("http://www.","")
 
 """
     Description: get number of cpus and setup/manage processes.
 """
-def processManager():
+def processManager(pageCount):
     #get number of cpus
     #spawn the process with the threadManager as the function to execute
     #start the processes
-    
+    all_links = []
     cpu_count = mp.cpu_count()
-    #while len(URLS_VISITED) < MAX_PAGE_COUNT and URLS_TO_VISIT.qsize() > 0:
-    processes = []
-    number_of_pages = URLS_TO_VISIT.qsize() // cpu_count
-    balanced_number_of_pages = URLS_TO_VISIT.qsize()//cpu_count + URLS_TO_VISIT.qsize()%cpu_count
-    for i in range(cpu_count):
-        global URLS_VISITED
-        local_links = [] 
-        if i < cpu_count:
-            for t in range(number_of_pages):
-                local_links.append(URLS_TO_VISIT.get())
-            URLS_VISITED += local_links
-            p = mp.Process(target = parsePage, args = [local_links,URLS_TO_VISIT,LOCK])
-            processes.append(p)
-            p.start()
-        else:
-            for t in range(balanced_number_of_pages):
-                local_links.append(URLS_TO_VISIT.get())
-            URLS_VISITED += local_links
-            p = mp.Process(target = parsePage, args = [local_links,URLS_TO_VISIT,LOCK])
-            processes.append(p)
-            p.start()
-            
-    for p in processes:
-        print("join")
-        p.join()
+    isFirst = True
+    while(pageCount > 0):
+        pool = mp.Pool(processes=cpu_count) #create pool
+        queue = mp.Manager().Queue() #create queue
 
-    output()
-"""
-    Description: function that spawns the threads for the process and manages the threads. Uses a set number
-                 threads (thread pool).
-"""
-def threadManager():
-    #if the max thread count hasn't been reached, acquire a lock to access URLS_TO_VISIT,
-    #while if URLS_TO_VISIT isn't empty, grab URLS_TO_VISIT[0] remove it from the list, acquire the lock
-    #to access URLS_VISITED and push URLS_TO_VISIT[0].
-    #spawn a new thread to visit the url. Don't forget to release all locks after access the info needed.
-    pass
+        if isFirst: #if it is the first cycle through get the inital links 
+            links = parsePage([DOMAIN],queue,MAINDOMAIN) #get inital page links
+
+            for _ in range(queue.qsize()): #populate all_links with queue results 
+                all_links.append(queue.get())
+
+        link_amount = len(all_links) // cpu_count
+        
+        for i in range(cpu_count): 
+            if i == cpu_count-1: 
+                pool.apply_async(parsePage,[all_links,queue,MAINDOMAIN])
+                del all_links[0:]
+            else:
+                pool.apply_async(parsePage,[all_links[0:link_amount],queue,MAINDOMAIN])
+                del all_links[0:link_amount]
+        pool.close()
+        pool.join()
+
+        for obj in range(queue.qsize()):
+            link = queue.get()
+            if link[len(link)-1] == "/": #remove slashes at the end of links
+                link = link[:len(link)-2]
+            if link not in all_links: #only allow unique links 
+                all_links.append(link)
+
+        print("length of all_links: "+str(len(all_links)))
+        pageCount -= 1
+        isFirst = False
+    output(all_links)
 
 
 """
     Description: visit page distributed by inital page using a thread of the processes. This function gets
                  gets called by the threads.
 """
-def parsePage(urls,queue,lock):
+def parsePage(urls,queue,MAINDOMAIN):
     #visit url and parse the return html.
     #if the links contains the domain and aren't in URLS_VISITED (acquire lock for list), acquire the lock
     #for URLS_TO_VISIT and push the valid link to the list. 
@@ -105,12 +97,11 @@ def parsePage(urls,queue,lock):
                 for link in soup.findAll("a"): #loop through links 
                     try:
                         if(MAINDOMAIN in link['href'] or link['href'][0] == '/'): #if it is on the same domain append url 
-                            lock.acquire()
+                      
                             if(link["href"][0] == "/"):
                                 queue.put(DOMAIN+link["href"])
                             else:
                                 queue.put(link["href"])
-                            lock.release()
                     except:
                         print("no href error ignored") 
         except:
@@ -119,19 +110,13 @@ def parsePage(urls,queue,lock):
 """
     Description: block for processes and threads to end then display stats/output links to a file.
 """
-def output():
+def output(links):
     #block for all processes to be finished.
     #then output stats about the runtime and links.
     #output all links to text file
-    out = [] 
-
-    for i in range(URLS_TO_VISIT.qsize()): 
-        out.append(URLS_TO_VISIT.get())
 
     file = open("output.txt","w")
-    for link in out: 
-        file.write(link + " \n") 
-    for link in URLS_VISITED: 
+    for link in links: 
         file.write(link + " \n") 
     file.close()   
 
@@ -142,6 +127,5 @@ def output():
 """
 if __name__ == "__main__":
     DOMAIN = sys.argv[1]
-    MAX_PAGE_COUNT = int(sys.argv[2]) #get thread pool size from command line
-    parsePage([DOMAIN],URLS_TO_VISIT,LOCK)
-    processManager()
+    max_page_count = int(sys.argv[2]) #number of cycles to run the webcrawler on
+    processManager(max_page_count)

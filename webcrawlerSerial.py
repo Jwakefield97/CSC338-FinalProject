@@ -27,11 +27,12 @@ def parsePage(url):
                 
                 for link in soup.findAll("a"): #loop through links 
                     try:
-                        if(MAINDOMAIN in link['href'] or link['href'][0] == '/'): #if it is on the same domain append url 
-                            if(link['href'][0] == '/'):
-                                URLS_TO_VISIT.append(DOMAIN + link["href"])
-                            else:
-                                URLS_TO_VISIT.append(link["href"])
+                        if(link not in URLS_TO_VISIT):
+                            if(link['href'][0] != "#" and MAINDOMAIN in link['href'] or link['href'][0] == '/'): #if it is on the same domain append url 
+                                if(link['href'][0] == '/'):
+                                    URLS_TO_VISIT.append(DOMAIN + link["href"])
+                                else:
+                                    URLS_TO_VISIT.append(link["href"])
                     except:
                         print("no href error occured") 
         except:
@@ -48,6 +49,7 @@ def output():
     for link in URLS_VISITED: 
         file.write(link + " \n") 
     file.close()   
+    print(len(URLS_TO_VISIT))
 
 if __name__ == "__main__":
     DOMAIN = sys.argv[1]
