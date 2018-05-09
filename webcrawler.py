@@ -40,28 +40,34 @@ def processManager(pageCount):
     #get number of cpus
     #spawn the process with the threadManager as the function to execute
     #start the processes
-    all_links = []
+    links_visited = set()
     cpu_count = mp.cpu_count()
     isFirst = True
     while(pageCount > 0):
+        links_to_visit = set()
         pool = mp.Pool(processes=cpu_count) #create pool
         queue = mp.Manager().Queue() #create queue
 
         if isFirst: #if it is the first cycle through get the inital links 
             links = parsePage([DOMAIN],queue,MAINDOMAIN) #get inital page links
 
-            for _ in range(queue.qsize()): #populate all_links with queue results 
-                all_links.append(queue.get())
+            for _ in range(queue.qsize()): #populate links_to_visit with queue results 
+                links_to_visit.add(queue.get())
 
-        link_amount = len(all_links) // cpu_count
+        link_amount = len(links_to_visit) // cpu_count
+        links_visited += links_to_visit
         
         for i in range(cpu_count): 
             if i == cpu_count-1: 
-                pool.apply_async(parsePage,[all_links,queue,MAINDOMAIN])
-                del all_links[0:]
+                pool.apply_async(parsePage,[list(links_to_visit),queue,MAINDOMAIN])
+                list(links_to_visit)
+                del links_to_visit[0:]
+                set(links_to_visit)
             else:
-                pool.apply_async(parsePage,[all_links[0:link_amount],queue,MAINDOMAIN])
-                del all_links[0:link_amount]
+                pool.apply_async(parsePage,[list(links_to_visit[0:link_amount]),queue,MAINDOMAIN])
+                list(links_visited)
+                del links_to_visit[0:link_amount]
+                set(links_to_visit)
         pool.close()
         pool.join()
 
@@ -69,13 +75,13 @@ def processManager(pageCount):
             link = queue.get()
             if link[len(link)-1] == "/": #remove slashes at the end of links
                 link = link[:len(link)-2]
-            if link not in all_links: #only allow unique links 
-                all_links.append(link)
+            if link not in links_to_visit: #only allow unique links 
+                links_to_visit.add(link)
 
-        print("length of all_links: "+str(len(all_links)))
+        print("length of links_to_visit: "+str(len(links_to_visit)))
         pageCount -= 1
         isFirst = False
-    output(all_links)
+    output(links_to_visit)
 
 
 """
