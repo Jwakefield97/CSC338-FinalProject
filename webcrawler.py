@@ -55,33 +55,28 @@ def processManager(pageCount):
                 links_to_visit.add(queue.get())
 
         link_amount = len(links_to_visit) // cpu_count
-        links_visited += links_to_visit
+        links_visited = links_visited.union(links_to_visit)
         
+        local_links_to_visit = list(links_to_visit) #conversion from set to list
         for i in range(cpu_count): 
             if i == cpu_count-1: 
-                pool.apply_async(parsePage,[list(links_to_visit),queue,MAINDOMAIN])
-                list(links_to_visit)
-                del links_to_visit[0:]
-                set(links_to_visit)
+                pool.apply_async(parsePage,[local_links_to_visit,queue,MAINDOMAIN])
+                del local_links_to_visit[0:]
             else:
-                pool.apply_async(parsePage,[list(links_to_visit[0:link_amount]),queue,MAINDOMAIN])
-                list(links_visited)
-                del links_to_visit[0:link_amount]
-                set(links_to_visit)
+                pool.apply_async(parsePage,[local_links_to_visit[0:link_amount],queue,MAINDOMAIN])
+                del local_links_to_visit[0:link_amount]
         pool.close()
         pool.join()
-
         for obj in range(queue.qsize()):
             link = queue.get()
             if link[len(link)-1] == "/": #remove slashes at the end of links
                 link = link[:len(link)-2]
-            if link not in links_to_visit: #only allow unique links 
-                links_to_visit.add(link)
+            if link not in links_visited:  #if have not visited yet 
+                links_to_visit.add(link)#only allow unique links
 
-        print("length of links_to_visit: "+str(len(links_to_visit)))
         pageCount -= 1
         isFirst = False
-    output(links_to_visit)
+    output(list(links_visited))
 
 
 """
@@ -116,13 +111,12 @@ def parsePage(urls,queue,MAINDOMAIN):
 """
     Description: block for processes and threads to end then display stats/output links to a file.
 """
-def output(links):
+def output(links_visited):
     #block for all processes to be finished.
     #then output stats about the runtime and links.
     #output all links to text file
-
     file = open("output.txt","w")
-    for link in links: 
+    for link in links_visited: 
         file.write(link + " \n") 
     file.close()   
 
