@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup 
 import requests
 import sys
+import time
 
 # I tested this with https://www.missouristate.edu with 15 as the page limit 
 
@@ -54,6 +55,8 @@ def output():
 if __name__ == "__main__":
     DOMAIN = sys.argv[1]
     PAGE_LIMIT = int(sys.argv[2])
+    start_time = time.time()
     parsePage(DOMAIN)
     crawl()
     output()
+    print("--- %s seconds ---" % (time.time() - start_time))

@@ -32,6 +32,7 @@ import time
 
 DOMAIN = "" # Ex: https://www.google.com
 MAINDOMAIN = DOMAIN.replace("https://www.","").replace("http://www.","")
+STARTTIME = time.time()
 
 """
     Description: get number of cpus and setup/manage processes.
@@ -118,7 +119,8 @@ def output(links_visited):
     file = open("output.txt","w")
     for link in links_visited: 
         file.write(link + " \n") 
-    file.close()   
+    file.close()
+    print("--- %s seconds ---" % (time.time() - STARTTIME))
 
 
 """
