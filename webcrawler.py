@@ -1,6 +1,6 @@
 """
     Group: PacMan
-    Authors: Connor Jansen (cjjansen95), Eric McCullough (eam96), Jacob Wakefield (jwakefield97), John Bell (jab331)
+    Authors: Connor Jansen (cjjansen95), Eric McCullough (eam96), Jacob Wakefield (jwakefield97), John Bell (jabell331)
     Assignment: CSC338 final project
 
     Description: A web crawler that takes an inital url from the command line and collects the links on that page. It then breaks those links up amongst 
