@@ -2,6 +2,7 @@
     Group: PacMan
     Authors: Connor Jansen (cjjansen95), Eric McCullough (eam96), Jacob Wakefield (jwakefield97), John Bell (jab331)
     Assignment: CSC338 final project
+    github url: https://github.com/Jwakefield97/CSC338-FinalProject
 
     Description: A web crawler that takes an inital url from the command line and collects the links on that page. It then breaks those links up amongst 
                  the number of cpu's in the computer. After the processes join, if the cycles that the users selected via command line argument, the 
